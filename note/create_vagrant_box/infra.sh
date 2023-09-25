@@ -137,6 +137,7 @@ function common-online-vm-startup {
     cp conf/vagrant/Vagrantfile cache/vm/online/Vagrantfile
     cd cache/vm/online
     sed -i 's/{VM_NAME}/virtual-environment-iwac-infra-online-s235/' Vagrantfile
+    # sed -i 's/{VM_NAME}/virtual-environment-iwa-infra-online-s235/' Vagrantfile
     sed -i 's/{SHARED_DIR}/..\/..\/..\/shell\/online/' Vagrantfile
     if [ ! -z ${ONLINE_VAGRANT_DESTROY} ];
     then
@@ -209,10 +210,13 @@ function cli-online-pack {
     common-online-vm-startup
     vagrant ssh -c "cd ~/shared && source install.sh"
     if [ -e virtual-environment-iwac-infra-online-s235.box ];
+    # if [ -e virtual-environment-iwa-infra-online-s235.box ];
     then
         rm virtual-environment-iwac-infra-online-s235.box
+        # rm virtual-environment-iwa-infra-online-s235.box
     fi
     vagrant package --base virtual-environment-iwac-infra-online-s235 --output virtual-environment-iwac-infra-online-s235.box
+    # vagrant package --base virtual-environment-iwa-infra-online-s235 --output virtual-environment-iwa-infra-online-s235.box
     vagrant halt -f
 }
 
