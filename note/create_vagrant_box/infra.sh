@@ -208,7 +208,11 @@ function cli-online-dev-help {
 # ------------------- Command "online"-"pack" method -------------------
 function cli-online-pack {
     common-online-vm-startup
+    # iwac:
     vagrant ssh -c "cd ~/shared && source install.sh"
+    # iwa:
+    # vagrant ssh -c "cd ~/shared/ws && source install.sh"
+    # vagrant ssh -c "cd ~/shared/iot && source install.sh"
     if [ -e virtual-environment-iwac-infra-online-s235.box ];
     # if [ -e virtual-environment-iwa-infra-online-s235.box ];
     then
