@@ -4,6 +4,6 @@ cd ~
 # cd ~/git/iwac-infra
 cd ~/git/iwac-infra-s235
 git reset --hard && git fetch && git pull
-# bash infra.sh online pack
+# bash infra.sh online pack # iwac
 # bash <(curl -s http://172.22.0.172:5555/ops/sftp) u ~/git/iwac-infra/cache/vm/online/*.box ./box/linux
 # bash <(curl -s http://172.22.0.172:5555/ops/sftp) u ~/git/iwac-infra-s235/cache/vm/online/*.box ./box/linux

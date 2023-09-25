@@ -4,6 +4,6 @@ cd ~
 # cd ~/git/iwa-infra
 cd ~/git/iwa-infra-s235
 git reset --hard && git fetch && git pull
-# bash infra.sh online --reboot pack
+# bash infra.sh online --reboot pack # iwa
 # bash <(curl -s http://172.22.0.172:5555/ops/sftp) u ~/git/iwa-infra/cache/vm/online/*.box ./box/linux
 # bash <(curl -s http://172.22.0.172:5555/ops/sftp) u ~/git/iwa-infra-s235/cache/vm/online/*.box ./box/linux
