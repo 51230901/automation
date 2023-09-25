@@ -1,0 +1,38 @@
+部門代碼	5120646130
+部門名稱	IST研發處
+
+Website:
+
+http://172.22.0.171/, http://devops-gitlab.iwa.local/ -> RD CI/CD Server
+http://172.22.0.172:80/, http://devops-jenkins.iwa.local/login?from=%2F -> Jenkins Server
+http://172.22.0.172:5555/
+http://devops-hfs.iwa.local/ -> HTTP File Server Server
+http://devops-elk.iwa.local/ -> Elastic Server
+
+172.22.0.171  (gitlab)
+ist
+1qaz@WSX3edc
+
+172.22.0.172  (jenkins)
+ist
+1qaz@WSX3edc
+
+172.22.0.173  (ELK)
+istuser
+ist@user
+
+172.22.0.174  (jenkin-test??)
+istuser
+ist@user
+
+172.22.123.55  (vm-dev)
+cpower
+cpower1234
+
+172.22.123.72 (QA Server)
+cpower
+cpower1234
+
+172.22.123.230  (dev)
+cpower
+cpower1234

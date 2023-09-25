@@ -1,0 +1,95 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_EXPERIMENTAL'] = "disks" # 硬碟實用性功能
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  config.vm.box = "virtual-environment-iwa-infra-online" # vagrant hub 上的 box
+
+  # Change virtual machine disk size
+  config.vm.disk :disk, size: "50GB", primary: true
+
+  #config.vm.disk：指定要配置虚拟机的磁盘。
+  #:disk：磁盘的名称或标识符，您可以根据需要选择一个合适的名称。
+  #size: "50GB"：设置虚拟机磁盘的大小为 50GB。您可以根据需要更改磁盘的大小。
+  #primary: true：将这个磁盘设置为虚拟机的主要磁盘。主要磁盘通常包含操作系统和系统文件。这是一  个布尔值，如果设置为 true，则表示该磁盘是主要磁盘。
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  config.vm.box_check_update = false
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # NOTE: This will enable public access to the opened port
+  config.vm.network "forwarded_port", guest: 80, host: 8580
+  # 允许主机上的端口 8580 接收来自虚拟机内部端口 80 的网络流量
+  config.vm.network "forwarded_port", guest: 443, host: 8581
+  config.vm.network "forwarded_port", guest: 1883, host: 1883
+  config.vm.network "forwarded_port", guest: 1884, host: 8583
+  config.vm.network "forwarded_port", guest: 3306, host: 33056
+  config.vm.network "forwarded_port", guest: 48201, host: 58201
+  config.vm.network "forwarded_port", guest: 6380, host: 56380
+  config.vm.network "forwarded_port", guest: 48200, host: 58200
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.0.55", mac: "5CA1AB1E0051", virtualbox__intnet: "inet1"
+  # config.vm.network：指定要配置虚拟机的网络设置。
+  # "private_network"：表示要创建一个私有网络适配器。私有网络适配器通常用于与虚拟机内部通信，而不是与外部网络通信。
+  # ip: "192.168.0.55"：指定虚拟机的 IP 地址，这里是 "192.168.0.55"。这将是虚拟机在私有网络上的 IP 地址。
+  # mac: "5CA1AB1E0051"：指定虚拟机网络适配器的 MAC 地址。MAC 地址是网络适配器的硬件地址。
+  # virtualbox__intnet: "inet1"：指定虚拟机网络适配器连接到的 VirtualBox 内部网络名称，这里是 "inet1"。VirtualBox 内部网络用于连接虚拟机之间，或者虚拟机与主机之间的通信。
+  config.vm.network "private_network", ip: "192.167.0.55", mac: "5CA1AB1E0052", virtualbox__intnet: "inet2"
+  config.vm.network "private_network", ip: "192.166.0.55", mac: "5CA1AB1E0053", virtualbox__intnet: "inet3"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  config.vm.synced_folder "./share", "/home/vagrant/share"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  config.vm.provider "virtualbox" do |vb|
+    # Customize the amount of cpu on the VM:
+    vb.customize ["modifyvm", :id, "--cpus", "8"]
+    # Customize the amount of memory on the VM:
+    vb.memory = "32000"
+  end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+  # documentation for more information about their specific syntax and use.
+  # config.vm.provision "shell", inline: <<-SHELL
+  #   apt-get update
+  #   apt-get install -y apache2
+  # SHELL
+end

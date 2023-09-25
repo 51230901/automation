@@ -1,0 +1,145 @@
+pipeline {
+    agent any
+    environment {
+        // Declare variable
+        GIT_URL = 'http://172.22.0.171/RD/devops/iwa-devops.git'
+        GIT_BRANCH = 'master'
+        IWA_DEVOPS_REPOSITORY_DIR = '/var/data/git'
+        IWA_DEVOPS_BINARY_DIR = '/var/data/bin'
+        QA_REPOSITORY = 'iwa-api-testcase-runner'
+    }
+    
+    stages {
+        stage('Prepare Devops') {
+            steps {
+                git url: GIT_URL, branch: GIT_BRANCH, credentialsId: '355edc7a-2613-4fd8-bc14-167b23b5d427'
+                sh 'bash shell.sh test dev echo-env'
+            }
+        }
+        stage('Update runner') {
+            steps {
+                script {
+                    // Retrieve project url
+                    sh """touch tmp
+                    echo '. \${WORK_COMMON_PATH}/git.sh' >> tmp
+                    echo 'echo \$(git-url QA ${QA_REPOSITORY})' >> tmp
+                    mv tmp ./shell/test/env/dev/get-url.sh
+                    """
+                    IWA_RUNNER_GIT_PATH = sh (
+                        script: 'bash shell.sh test dev get-url | grep http',
+                        returnStdout: true
+                    ).trim()
+                    
+                    // Generate command
+                    sh """touch tmp
+                    echo 'cd ~/git' >> tmp
+                    echo '[ ! -d ${QA_REPOSITORY} ] && git clone ${IWA_RUNNER_GIT_PATH}' >> tmp
+                    echo 'cd ${QA_REPOSITORY}' >> tmp
+                    echo 'git fetch && git pull' >> tmp
+                    mv tmp remoteexec.log
+                    """
+                    // Execute script
+                    sh 'bash shell.sh infra jenkins task-remote-exec'
+                }
+            }
+        }
+        stage('Download resource') {
+            steps {
+                script {
+                    LOAD_BOX_CMD = 'bash run.sh load box'
+                    if (UPDATE_VM_IMAGE == "true") {
+                        LOAD_BOX_CMD = 'bash load box --force'
+                    }
+                    // Generate command
+                    sh """touch tmp
+                    echo 'cd ~/git/${QA_REPOSITORY}' >> tmp
+                    echo '${LOAD_BOX_CMD}' >> tmp
+                    echo 'bash run.sh load res -e=${ENV} -c=${CONFIG}' >> tmp
+                    echo 'bash run.sh load runner -d -e=${IWAC_ENV} -c=${IWAC_CONFIG} --product=iwac' >> tmp
+                    echo 'bash run.sh vm halt' >> tmp
+                    mv tmp remoteexec.log
+                    """
+                    // Execute script
+                    sh 'bash shell.sh infra jenkins task-remote-exec'
+                }
+            }
+        }
+        stage('Re-pack vm image') {
+            when { expression { UPDATE_PACK_IMAGE == "true" } }
+            steps {
+                script {
+                    // Generate command
+                    sh """touch tmp
+                    echo 'cd ~/git/${QA_REPOSITORY}' >> tmp
+                    echo 'bash run.sh vm pack -b=${ENV}-${CONFIG} --remove' >> tmp
+                    echo 'bash run.sh vm pack -b=${ENV}-${CONFIG}' >> tmp
+                    mv tmp remoteexec.log
+                    """
+                    // Execute script
+                    sh 'bash shell.sh infra jenkins task-remote-exec'
+                }
+            }
+        }
+        stage('Run test story : import-testdata') {
+            steps {
+                script {
+                    // Generate command
+                    sh """touch tmp
+                    echo 'cd ~/git/${QA_REPOSITORY}' >> tmp
+                    echo 'bash run.sh vm reload -b=${ENV}-${CONFIG}' >> tmp
+                    echo 'sleep 1m && bash run.sh test story --story=import-testdata -b=${ENV}-${CONFIG} --backup=iwac-${IWAC_ENV}-${IWAC_CONFIG}' >> tmp
+                    mv tmp remoteexec.log
+                    """
+                    // Execute script
+                    //sh 'bash shell.sh infra jenkins task-remote-exec'
+                }
+            }
+        }
+        stage('Run test case') {
+            steps {
+                script {
+                    // Generate command
+                    sh """touch tmp
+                    echo 'cd ~/git/${QA_REPOSITORY}' >> tmp
+                    echo 'bash run.sh vm reload -b=${ENV}-${CONFIG}' >> tmp
+                    echo 'sleep 1m && bash run.sh test story --story=import-testdata -b=${ENV}-${CONFIG} --backup=iwac-${IWAC_ENV}-${IWAC_CONFIG}' >> tmp
+                    echo 'sleep 1m && bash run.sh test case -b=${ENV}-${CONFIG}' >> tmp
+                    mv tmp remoteexec.log
+                    """
+                    // Execute script
+                    sh 'bash shell.sh infra jenkins task-remote-exec'
+                }
+            }
+        }
+        stage('Calculate data') {
+            steps {
+                script {
+                    // Generate command
+                    sh """touch tmp
+                    echo 'cd ~/git/${QA_REPOSITORY}' >> tmp
+                    echo 'bash run.sh vm swagger -b=${ENV}-${CONFIG}' >> tmp
+                    echo 'bash run.sh calc -b=${ENV}-${CONFIG}' >> tmp
+                    mv tmp remoteexec.log
+                    """
+                    // Execute script
+                    sh 'bash shell.sh infra jenkins task-remote-exec'
+                }
+            }
+        }
+        stage('Upload runner report') {
+            steps {
+                script {
+                    // Generate command
+                    sh """touch tmp
+                    echo 'cd ~/git/${QA_REPOSITORY}' >> tmp
+                    echo 'bash run.sh vm halt' >> tmp
+                    echo 'bash run.sh load runner -u -e=${ENV} -c=${CONFIG}' >> tmp
+                    mv tmp remoteexec.log
+                    """
+                    // Execute script
+                    sh 'bash shell.sh infra jenkins task-remote-exec'
+                }
+            }
+        }
+    }
+}
