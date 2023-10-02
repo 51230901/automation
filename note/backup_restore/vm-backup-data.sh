@@ -13,17 +13,15 @@ MACHINE_NAME=vm-${VM_ID}
 touch import-data.sh
 echo 'curl -s http://172.22.0.172:5555/ops/sftp > ~/sftp.sh' >> import-data.sh
 echo 'sleep 60' >> import-data.sh
-for SHELLNAME in ${SHLLL_LIST};
-do
-    echo "if [ \$(sudo bash ~/sftp.sh ls backup-data | grep ${SHELLNAME}.sh | wc -l) -eq 1 ]; then" >> import-data.sh
-    echo "source ~/sftp.sh d backup-data/${SHELLNAME}.sh" >> import-data.sh
-    echo "sed -i 's/\r$//' ${SHELLNAME}.sh" >> import-data.sh
-    echo "source ${SHELLNAME}.sh ${VM_ID} ${TIMESTAMP} ${DEVICE_NAME}">> import-data.sh
-    echo "else" >> import-data.sh
-    echo "echo ${SHELLNAME}.sh not find" >> import-data.sh
-    echo "exit 0" >> import-data.sh
-    echo "fi" >> import-data.sh
-done
+
+echo "if [ \$(sudo bash ~/sftp.sh ls backup-data | grep ${SHLLL_LIST}.sh | wc -l) -eq 1 ]; then" >> import-data.sh
+echo "source ~/sftp.sh d backup-data/${SHLLL_LIST}.sh" >> import-data.sh
+echo "sed -i 's/\r$//' ${SHLLL_LIST}.sh" >> import-data.sh
+echo "source ${SHLLL_LIST}.sh ${VM_ID} ${TIMESTAMP} ${DEVICE_NAME}">> import-data.sh
+echo "else" >> import-data.sh
+echo "echo ${SHLLL_LIST}.sh not find" >> import-data.sh
+echo "exit 0" >> import-data.sh
+echo "fi" >> import-data.sh
 
 # Copy to target server
 scp import-data.sh ${SERVER}:~/vm/${MACHINE_NAME}/share
